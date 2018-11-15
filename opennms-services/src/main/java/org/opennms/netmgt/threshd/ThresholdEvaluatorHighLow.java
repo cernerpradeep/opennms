@@ -171,9 +171,9 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
         }
         
 		@Override
-		public Status isTriggerSustainedEvent() {
+		public Status evaluateSustained(double dsValue) {
 			Status changeStatus;
-			if(m_thresholdConfig.isDF2()){
+			if(isThresholdExceeded(dsValue)){
 				changeStatus = Status.TRIGGERED;
 			}
 			else{

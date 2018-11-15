@@ -96,10 +96,11 @@ public interface ThresholdEvaluatorState {
     
     /**
      * Return true if current state is TRIGGERED
+     * @param dsValue 
      *
      * @return a s.
      */
-    public Status isTriggerSustainedEvent();
+    public Status evaluateSustained(double dsValue);
     
     /**
      * Return true if current state is TRIGGERED

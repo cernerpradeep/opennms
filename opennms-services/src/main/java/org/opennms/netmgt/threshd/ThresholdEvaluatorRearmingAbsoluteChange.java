@@ -69,6 +69,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         private double m_lastSample = Double.NaN;
         private double m_previousTriggeringSample = Double.NaN;
         private int m_triggerCount = 0;
+        private boolean m_currentTriggeredStatus;
 
         public ThresholdEvaluatorStateRearmingAbsoluteChange(BaseThresholdDefConfigWrapper threshold) {
             Assert.notNull(threshold, "threshold argument cannot be null");
@@ -103,6 +104,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         @Override
         public Status evaluate(double dsValue) {
 //            log().debug(TYPE + " threshold evaluating, sample value="+dsValue);
+        	m_currentTriggeredStatus = false;
         	try {
         		if(!Double.valueOf(getPreviousTriggeringSample()).isNaN()) {
         			++m_triggerCount;
@@ -116,6 +118,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         			setPreviousTriggeringSample(getLastSample());
         			m_triggerCount = 0;
 				LOG.debug("{} threshold triggered, sample value={}", TYPE, dsValue);
+					m_currentTriggeredStatus = true;
         			return Status.TRIGGERED;
         		} 
         	} finally {
@@ -126,15 +129,15 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         }
         
 		@Override
-		public Status isTriggerSustainedEvent() {
-			Status changeStatus;
-			if(m_thresholdConfig.isDF2()){
-				changeStatus = Status.TRIGGERED;
+		public Status evaluateSustained(double dsValue) {
+			Status status;
+			if(m_currentTriggeredStatus){
+				status = Status.TRIGGERED;
 			}
 			else{
-				changeStatus = Status.NO_CHANGE;
+				status = Status.NO_CHANGE;
 			}
-			return changeStatus;
+			return status;
 		}
 
         
