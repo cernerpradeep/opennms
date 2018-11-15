@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.opennms.netmgt.config.threshd.ThresholdType;
 import org.opennms.netmgt.events.api.EventConstants;
+import org.opennms.netmgt.threshd.ThresholdEvaluatorState.Status;
 import org.opennms.netmgt.xml.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,8 @@ public class ThresholdEvaluatorAbsoluteChange implements ThresholdEvaluator {
 
         @Override
         public Status evaluate(double dsValue) {
+        	//m_thresholdConfig.isDF2();
+        	
             if(!Double.isNaN(getLastSample())) {
                 double threshold = getLastSample()+getChange();
 
@@ -125,7 +128,19 @@ public class ThresholdEvaluatorAbsoluteChange implements ThresholdEvaluator {
             setLastSample(dsValue);
             return Status.NO_CHANGE;
         }
-
+        
+		@Override
+		public Status isTriggerSustainedEvent() {
+			Status changeStatus;
+			if(m_thresholdConfig.isDF2()){
+				changeStatus = Status.TRIGGERED;
+			}
+			else{
+				changeStatus = Status.NO_CHANGE;
+			}
+			return changeStatus;
+		}
+		
         public Double getLastSample() {
             return m_lastSample;
         }
@@ -142,6 +157,19 @@ public class ThresholdEvaluatorAbsoluteChange implements ThresholdEvaluator {
             } else {
                 return null;
             }
+        }
+        
+        @Override
+        public Event getTriggerSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource) {
+        	if (status == Status.TRIGGERED) {
+	        	final String triggerSustainedUEI = getThresholdConfig().getTriggerSustainedUEI().orElse(null);
+	            if (triggerSustainedUEI != null) {
+	                return createBasicEvent(triggerSustainedUEI, date, dsValue, resource);
+	            } else {
+	                return null;
+	            }
+        	}
+        	return null;
         }
         
         private Event createBasicEvent(String uei, Date date, double dsValue, CollectionResourceWrapper resource) {
@@ -183,6 +211,7 @@ public class ThresholdEvaluatorAbsoluteChange implements ThresholdEvaluator {
         @Override
         public void clearState() {
         }
+
     }
 
 }

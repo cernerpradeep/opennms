@@ -93,4 +93,18 @@ public interface ThresholdEvaluatorState {
      * @return a {@link org.opennms.netmgt.threshd.ThresholdEvaluatorState} object.
      */
     public ThresholdEvaluatorState getCleanClone();
+    
+    /**
+     * Return true if current state is TRIGGERED
+     *
+     * @return a s.
+     */
+    public Status isTriggerSustainedEvent();
+    
+    /**
+     * Return true if current state is TRIGGERED
+     *
+     * @return a s.
+     */
+    public Event getTriggerSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource);
 }

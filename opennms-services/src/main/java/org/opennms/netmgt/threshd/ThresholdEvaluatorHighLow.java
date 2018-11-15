@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.opennms.netmgt.config.threshd.ThresholdType;
 import org.opennms.netmgt.events.api.EventConstants;
+import org.opennms.netmgt.threshd.ThresholdEvaluatorState.Status;
 import org.opennms.netmgt.xml.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,6 +169,19 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
 
             return Status.NO_CHANGE;
         }
+        
+		@Override
+		public Status isTriggerSustainedEvent() {
+			Status changeStatus;
+			if(m_thresholdConfig.isDF2()){
+				changeStatus = Status.TRIGGERED;
+			}
+			else{
+				changeStatus = Status.NO_CHANGE;
+			}
+			return changeStatus;
+		}
+
 
         protected boolean isThresholdExceeded(double dsValue) {
             if (ThresholdType.HIGH.equals(getThresholdConfig().getType())) {
@@ -244,6 +258,19 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
             default:
                 throw new IllegalArgumentException("Status " + status + " is not supported for converting to an event.");
             }
+        }
+        
+        @Override
+        public Event getTriggerSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource) {
+        	if (status == Status.TRIGGERED) {
+	        	final String triggerSustainedUEI = getThresholdConfig().getTriggerSustainedUEI().orElse(null);
+	            if (triggerSustainedUEI != null) {
+	                return createBasicEvent(triggerSustainedUEI, date, dsValue, resource);
+	            } else {
+	                return null;
+	            }
+        	}
+        	return null;
         }
         
         private Event createBasicEvent(String uei, Date date, double dsValue, CollectionResourceWrapper resource) {
