@@ -219,8 +219,8 @@ public abstract class BaseThresholdDefConfigWrapper {
         return m_baseDef;
     }
     
-    public boolean isDF2(){
-	    return m_baseDef.getIsDF2();
+    public boolean hasSendSustainedEvents(){
+	    return m_baseDef.getSendSustainedEvents();
     }
 
     /** {@inheritDoc} */
@@ -250,7 +250,7 @@ public abstract class BaseThresholdDefConfigWrapper {
     }
     
     public Optional<String> getTriggerSustainedUEI() {
-		return m_baseDef.getTriggerSustainedUEI();
+		return m_baseDef.getSustainedUEI();
 	}
 
 	/** {@inheritDoc} */

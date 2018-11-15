@@ -254,20 +254,30 @@ public final class ThresholdEntity implements Cloneable {
         
         for (ThresholdEvaluatorState item : getThresholdEvaluatorStates(instance)) {
             Status status = item.evaluate(dsValue);
-            Event event = item.getEventForState(status, date, dsValue, resource);
+            Event event = item.getEventForState(status, date, dsValue,
+                                                resource);
             if (event != null) {
                 events.add(event);
             }
             
-            if(getThresholdConfig().isDF2()){
-            	Status triggerSustainedStatus = Status.NO_CHANGE;
-            	if(status != Status.TRIGGERED){
-            		triggerSustainedStatus = item.evaluateSustained();
-            	}
-		        Event triggerSustainedEvent = item.getTriggerSustainedEventForState(triggerSustainedStatus, date, dsValue, resource);
-		        if (triggerSustainedEvent != null) {
-		            events.add(triggerSustainedEvent);
-		        }
+            //this code flow is to honour send sustain events (Events for every threshold violations)
+            if (getThresholdConfig().hasSendSustainedEvents()) {
+                // Status triggerSustainedStatus = Status.NO_CHANGE;
+                // what happens if the status is TRIGGERED
+                //if (status != Status.TRIGGERED) {
+                Status triggerSustainedStatus = item.evaluateSustained();
+                //}
+                
+                if (Status.TRIGGERED == triggerSustainedStatus)
+                {
+                    Event triggerSustainedEvent = item.getTriggerSustainedEventForState(triggerSustainedStatus,
+                                                                                        date,
+                                                                                        dsValue,
+                                                                                        resource);
+                    if (triggerSustainedEvent != null) {
+                        events.add(triggerSustainedEvent);
+                    }
+                }
             }
             
         }
