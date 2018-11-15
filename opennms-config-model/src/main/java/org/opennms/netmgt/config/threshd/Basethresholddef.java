@@ -117,6 +117,14 @@ public abstract class Basethresholddef implements Serializable {
      */
     @XmlAttribute(name = "trigger", required = true)
     private Integer m_trigger;
+    
+    /**
+     * This is to check whether it is df2 eventd
+     * 
+     */
+    
+    @XmlAttribute(name = "isDf2")
+    private boolean m_isDF2;
 
     /**
      * Value to retrieve from strings.properties to label this
@@ -138,6 +146,13 @@ public abstract class Basethresholddef implements Serializable {
      */
     @XmlAttribute(name = "rearmedUEI")
     private String m_rearmedUEI;
+    
+    /**
+     * The triggeredSustained UEI is for an event 
+     * every time the  violation happens.
+     */
+    @XmlAttribute
+    private String m_triggerSustainedUEI;
 
     /**
      * The operator to be used when applying filters. The
@@ -211,6 +226,14 @@ public abstract class Basethresholddef implements Serializable {
     public void setTrigger(final Integer trigger) {
         m_trigger = ConfigUtils.assertMinimumInclusive(trigger, 1, "trigger");
     }
+    
+    public boolean getIsDF2() {
+        return m_isDF2;
+    }
+
+    public void setIsDF2(final boolean isDF2) {
+    	m_isDF2 = isDF2;
+    }
 
     public Optional<String> getDsLabel() {
         return Optional.ofNullable(m_dsLabel);
@@ -234,6 +257,14 @@ public abstract class Basethresholddef implements Serializable {
 
     public void setRearmedUEI(final String rearmedUEI) {
         m_rearmedUEI = ConfigUtils.normalizeString(rearmedUEI);
+    }
+    
+    public Optional<String> getTriggerSustainedUEI() {
+        return Optional.ofNullable(m_triggerSustainedUEI);
+    }
+
+    public void SetTriggerSustainedUEI(final String triggerSustainedUEI) {
+    	m_triggerSustainedUEI = ConfigUtils.normalizeString(triggerSustainedUEI);
     }
 
     public FilterOperator getFilterOperator() {
@@ -306,9 +337,11 @@ public abstract class Basethresholddef implements Serializable {
                     && Objects.equals(this.m_value, that.m_value)
                     && Objects.equals(this.m_rearm, that.m_rearm)
                     && Objects.equals(this.m_trigger, that.m_trigger)
+                    && Objects.equals(this.m_isDF2, that.m_isDF2)
                     && Objects.equals(this.m_dsLabel, that.m_dsLabel)
                     && Objects.equals(this.m_triggeredUEI, that.m_triggeredUEI)
                     && Objects.equals(this.m_rearmedUEI, that.m_rearmedUEI)
+                    && Objects.equals(this.m_triggerSustainedUEI, that.m_triggerSustainedUEI)
                     && Objects.equals(this.m_filterOperator, that.m_filterOperator)
                     && Objects.equals(this.m_resourceFilters, that.m_resourceFilters);
         }

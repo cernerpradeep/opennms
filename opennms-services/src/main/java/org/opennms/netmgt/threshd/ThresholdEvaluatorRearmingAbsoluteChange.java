@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.opennms.netmgt.config.threshd.ThresholdType;
 import org.opennms.netmgt.events.api.EventConstants;
+import org.opennms.netmgt.threshd.ThresholdEvaluatorState.Status;
 import org.opennms.netmgt.xml.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         private double m_lastSample = Double.NaN;
         private double m_previousTriggeringSample = Double.NaN;
         private int m_triggerCount = 0;
+        private boolean m_currentTriggeredStatus;
 
         public ThresholdEvaluatorStateRearmingAbsoluteChange(BaseThresholdDefConfigWrapper threshold) {
             Assert.notNull(threshold, "threshold argument cannot be null");
@@ -102,6 +104,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         @Override
         public Status evaluate(double dsValue) {
 //            log().debug(TYPE + " threshold evaluating, sample value="+dsValue);
+        	m_currentTriggeredStatus = false;
         	try {
         		if(!Double.valueOf(getPreviousTriggeringSample()).isNaN()) {
         			++m_triggerCount;
@@ -115,6 +118,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         			setPreviousTriggeringSample(getLastSample());
         			m_triggerCount = 0;
 				LOG.debug("{} threshold triggered, sample value={}", TYPE, dsValue);
+					m_currentTriggeredStatus = true;
         			return Status.TRIGGERED;
         		} 
         	} finally {
@@ -123,6 +127,19 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
 
         	return Status.NO_CHANGE;
         }
+        
+		@Override
+		public Status evaluateSustained() {
+			Status status;
+			if(m_currentTriggeredStatus){
+				status = Status.TRIGGERED;
+			}
+			else{
+				status = Status.NO_CHANGE;
+			}
+			return status;
+		}
+
         
         private boolean wasTriggered(double dsValue) {
         	// Test Code
@@ -162,6 +179,19 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
             } 
             
             return null;
+        }
+        
+        @Override
+        public Event getTriggerSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource) {
+        	if (status == Status.TRIGGERED) {
+	        	final String triggerSustainedUEI = getThresholdConfig().getTriggerSustainedUEI().orElse(null);
+	            if (triggerSustainedUEI != null) {
+	                return createBasicEvent(triggerSustainedUEI, date, dsValue, resource);
+	            } else {
+	            	return null;
+	            }
+	        }
+        	return null;
         }
         
         private Event createBasicEvent(String uei, Date date, double dsValue, CollectionResourceWrapper resource) {

@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.opennms.netmgt.config.threshd.ThresholdType;
 import org.opennms.netmgt.events.api.EventConstants;
+import org.opennms.netmgt.threshd.ThresholdEvaluatorState.Status;
 import org.opennms.netmgt.xml.event.Event;
 import org.springframework.util.Assert;
 
@@ -74,6 +75,7 @@ public class ThresholdEvaluatorRelativeChange implements ThresholdEvaluator {
 
         private double m_lastSample = 0.0;
         private double m_previousTriggeringSample;
+        private boolean m_currentTriggeredStatus;
 
         public ThresholdEvaluatorStateRelativeChange(BaseThresholdDefConfigWrapper threshold) {
             Assert.notNull(threshold, "threshold argument cannot be null");
@@ -111,6 +113,8 @@ public class ThresholdEvaluatorRelativeChange implements ThresholdEvaluator {
         	// after some discussion, we can't come up with a sensible scenario when that would actually happen.
         	// If such a scenario eventuates, reconsider
         	dsValue=Math.abs(dsValue);
+        	
+        	m_currentTriggeredStatus = false;
             if (getLastSample() != 0.0) {
                 double threshold = getMultiplier() * getLastSample();
 
@@ -118,12 +122,14 @@ public class ThresholdEvaluatorRelativeChange implements ThresholdEvaluator {
                     if (dsValue <= threshold) {
                         setPreviousTriggeringSample(getLastSample());
                         setLastSample(dsValue);
+                        m_currentTriggeredStatus = true;
                         return Status.TRIGGERED;
                     }
                 } else {
                     if (dsValue >= threshold) {
                         setPreviousTriggeringSample(getLastSample());
                         setLastSample(dsValue);
+                        m_currentTriggeredStatus = true;
                         return Status.TRIGGERED;
                     }
                 }
@@ -134,6 +140,15 @@ public class ThresholdEvaluatorRelativeChange implements ThresholdEvaluator {
             setLastSample(dsValue);
             return Status.NO_CHANGE;
         }
+        
+		@Override
+		public Status evaluateSustained() {
+			Status status = Status.NO_CHANGE;
+			if(m_currentTriggeredStatus){
+				status = Status.TRIGGERED;
+			}
+			return status;
+		}
 
         public Double getLastSample() {
             return m_lastSample;
@@ -151,6 +166,19 @@ public class ThresholdEvaluatorRelativeChange implements ThresholdEvaluator {
             } else {
                 return null;
             }
+        }
+        
+        @Override
+        public Event getTriggerSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource) {
+        	if (status == Status.TRIGGERED) {
+	        	final String triggerSustainedUEI = getThresholdConfig().getTriggerSustainedUEI().orElse(null);
+	            if (triggerSustainedUEI != null) {
+	                return createBasicEvent(triggerSustainedUEI, date, dsValue, resource);
+	            } else {
+	                return null;
+	            }
+          }
+        	return null;
         }
         
         private Event createBasicEvent(String uei, Date date, double dsValue, CollectionResourceWrapper resource) {
