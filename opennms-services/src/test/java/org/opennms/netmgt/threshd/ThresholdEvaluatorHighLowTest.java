@@ -195,6 +195,26 @@ public class ThresholdEvaluatorHighLowTest extends AbstractThresholdEvaluatorTes
     }
     
     @Test
+    public void testEvaluateHighTrigger() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.HIGH);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(101.0);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        threshold.setSendSustainedEvents(true);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+      
+        ThresholdEvaluatorState item = new ThresholdEvaluatorStateHighLow(wrapper);
+
+        Status status = item.evaluate(102.0);
+        Status sustainedStatus = item.evaluateSustained();
+        assertEquals("threshold evaluation status", Status.NO_CHANGE, status);
+        assertEquals("threshold sustained evaluation status", Status.TRIGGERED, sustainedStatus);
+    }
+    
+    @Test
     public void testEvaluateHighTriggerOnce() {
         Threshold threshold = new Threshold();
         threshold.setType(ThresholdType.HIGH);
