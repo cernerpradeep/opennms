@@ -100,7 +100,7 @@ public interface ThresholdEvaluatorState {
      *
      * @return a s.
      */
-    public Status evaluateSustained(double dsValue);
+    public Status evaluateSustained();
     
     /**
      * Return true if current state is TRIGGERED

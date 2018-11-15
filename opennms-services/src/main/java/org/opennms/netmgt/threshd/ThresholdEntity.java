@@ -262,7 +262,7 @@ public final class ThresholdEntity implements Cloneable {
             if(getThresholdConfig().isDF2()){
             	Status triggerSustainedStatus = Status.NO_CHANGE;
             	if(status != Status.TRIGGERED){
-            		triggerSustainedStatus = item.evaluateSustained(dsValue);
+            		triggerSustainedStatus = item.evaluateSustained();
             	}
 		        Event triggerSustainedEvent = item.getTriggerSustainedEventForState(triggerSustainedStatus, date, dsValue, resource);
 		        if (triggerSustainedEvent != null) {

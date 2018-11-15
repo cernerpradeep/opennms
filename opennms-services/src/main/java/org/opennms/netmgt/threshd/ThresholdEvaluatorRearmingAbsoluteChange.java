@@ -129,7 +129,7 @@ public class ThresholdEvaluatorRearmingAbsoluteChange implements ThresholdEvalua
         }
         
 		@Override
-		public Status evaluateSustained(double dsValue) {
+		public Status evaluateSustained() {
 			Status status;
 			if(m_currentTriggeredStatus){
 				status = Status.TRIGGERED;

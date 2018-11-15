@@ -91,6 +91,8 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
         private boolean m_armed;
         
         private CollectionResourceWrapper m_lastCollectionResourceUsed;
+        
+        private boolean m_currentTriggeredStatus;
 
         public ThresholdEvaluatorStateHighLow(BaseThresholdDefConfigWrapper threshold) {
             Assert.notNull(threshold, "threshold argument cannot be null");
@@ -138,7 +140,9 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
         
         @Override
         public Status evaluate(double dsValue) {
+        	m_currentTriggeredStatus = false;
             if (isThresholdExceeded(dsValue)) {
+            	m_currentTriggeredStatus = true;
                 if (isArmed()) {
                     setExceededCount(getExceededCount() + 1);
 
@@ -171,9 +175,9 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
         }
         
 		@Override
-		public Status evaluateSustained(double dsValue) {
+		public Status evaluateSustained() {
 			Status changeStatus;
-			if(isThresholdExceeded(dsValue)){
+			if(m_currentTriggeredStatus){
 				changeStatus = Status.TRIGGERED;
 			}
 			else{
