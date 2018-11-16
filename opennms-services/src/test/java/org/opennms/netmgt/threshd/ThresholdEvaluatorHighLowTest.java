@@ -203,6 +203,23 @@ public class ThresholdEvaluatorHighLowTest extends AbstractThresholdEvaluatorTes
         threshold.setValue(101.0);
         threshold.setRearm(0.5);
         threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+      
+        ThresholdEvaluatorState item = new ThresholdEvaluatorStateHighLow(wrapper);
+
+        Status status = item.evaluate(102.0);
+        assertEquals("threshold evaluation status", Status.NO_CHANGE, status);
+    }
+    
+    @Test
+    public void testEvaluateSustainedHighTrigger() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.HIGH);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(101.0);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
         threshold.setSendSustainedEvents(true);
         ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
       
@@ -269,6 +286,31 @@ public class ThresholdEvaluatorHighLowTest extends AbstractThresholdEvaluatorTes
     }
     
     @Test
+    public void testEvaluateSustainedHighTriggerTwice() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.HIGH);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(99.0);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(2);
+        threshold.setSendSustainedEvents(true);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+
+        ThresholdEvaluatorState item = new ThresholdEvaluatorStateHighLow(wrapper);
+
+        Status status = item.evaluate(100.0);
+        Status sustainedStatus = item.evaluateSustained();
+        assertEquals("first threshold evaluation status", Status.NO_CHANGE, status);
+        assertEquals("first sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+
+        status = item.evaluate(100.0);
+        sustainedStatus = item.evaluateSustained();
+        assertEquals("second threshold evaluation status", Status.TRIGGERED, status);
+        assertEquals("second sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+    }
+    
+    @Test
     public void testEvaluateHighTriggerTwiceNoRetrigger() {
         Threshold threshold = new Threshold();
         threshold.setType(ThresholdType.HIGH);
@@ -296,6 +338,42 @@ public class ThresholdEvaluatorHighLowTest extends AbstractThresholdEvaluatorTes
     }
     
     @Test
+    public void testEvaluateSustainedHighTriggerTwiceNoRetrigger() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.HIGH);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(99.0);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(2);
+        threshold.setSendSustainedEvents(true);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+
+        ThresholdEvaluatorState item = new ThresholdEvaluatorStateHighLow(wrapper);
+
+        Status status = item.evaluate(100.0);
+        Status sustainedStatus = item.evaluateSustained();
+        assertEquals("first threshold evaluation status", Status.NO_CHANGE, status);
+        assertEquals("first sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+
+        status = item.evaluate(100.0);
+        sustainedStatus = item.evaluateSustained();
+        assertEquals("second threshold evaluation status", Status.TRIGGERED, status);
+        assertEquals("second sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+        
+        status = item.evaluate(100.0);
+        sustainedStatus = item.evaluateSustained();
+        assertEquals("third threshold evaluation status", Status.NO_CHANGE, status);
+        assertEquals("third sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+
+        status = item.evaluate(100.0);
+        sustainedStatus = item.evaluateSustained();
+        assertEquals("fourth threshold evaluation status", Status.NO_CHANGE, status);
+        assertEquals("fourth sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+
+    }
+    
+    @Test
     public void testEvaluateHighTriggerRearm() {
         Threshold threshold = new Threshold();
         threshold.setType(ThresholdType.HIGH);
@@ -313,6 +391,31 @@ public class ThresholdEvaluatorHighLowTest extends AbstractThresholdEvaluatorTes
 
         status = item.evaluate(0.0);
         assertEquals("second threshold evaluation status", Status.RE_ARMED, status);
+    }
+    
+    @Test
+    public void testEvaluateSustainedHighTriggerRearm() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.HIGH);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(99.0);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(1);
+        threshold.setSendSustainedEvents(true);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+
+        ThresholdEvaluatorState item = new ThresholdEvaluatorStateHighLow(wrapper);
+
+        Status status = item.evaluate(100.0);
+        Status sustainedStatus = item.evaluateSustained();
+        assertEquals("first threshold evaluation status", Status.TRIGGERED, status);
+        assertEquals("first sustained threshold evaluation status", Status.TRIGGERED, sustainedStatus);
+
+        status = item.evaluate(0.0);
+        sustainedStatus = item.evaluateSustained();
+        assertEquals("second threshold evaluation status", Status.RE_ARMED, status);
+        assertEquals("second sustained threshold evaluation status", Status.NO_CHANGE, sustainedStatus);
     }
 
     @Test
