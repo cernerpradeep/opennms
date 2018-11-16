@@ -220,7 +220,7 @@ public abstract class BaseThresholdDefConfigWrapper {
     }
     
     public boolean hasSendSustainedEvents(){
-	    return m_baseDef.getSendSustainedEvents();
+	    return m_baseDef.getSendSustainedEvents() != null;
     }
 
     /** {@inheritDoc} */

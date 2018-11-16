@@ -262,7 +262,7 @@ public final class ThresholdEntity implements Cloneable {
             
             //this code flow is to honour send sustain events (Events for every threshold violations)
             //first check whether the send sustained has been configured
-            if (getThresholdConfig().hasSendSustainedEvents()) {
+            if (item.getThresholdConfig().hasSendSustainedEvents()) {
                 //create a event and add it to the list if the sustained status is TRIGGERED
                 Event triggerSustainedEvent = item.getTriggerSustainedEventForState(item.evaluateSustained(),
                                                                                     date,
