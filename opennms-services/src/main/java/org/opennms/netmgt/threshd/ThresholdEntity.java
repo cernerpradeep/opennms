@@ -264,7 +264,7 @@ public final class ThresholdEntity implements Cloneable {
             //first check whether the send sustained has been configured
             if (item.getThresholdConfig().hasSendSustainedEvents()) {
                 //create a event and add it to the list if the sustained status is TRIGGERED
-                Event triggerSustainedEvent = item.getTriggerSustainedEventForState(item.evaluateSustained(),
+                Event triggerSustainedEvent = item.getSustainedEventForState(item.evaluateSustained(),
                                                                                     date,
                                                                                     dsValue,
                                                                                     resource);

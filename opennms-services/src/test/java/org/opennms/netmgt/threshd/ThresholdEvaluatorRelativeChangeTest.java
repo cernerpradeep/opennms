@@ -328,7 +328,7 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
         ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
 
-        assertNull("should not have created an event", evaluator.getTriggerSustainedEventForState(Status.NO_CHANGE, new Date(), 10.0, null));
+        assertNull("should not have created an event", evaluator.getSustainedEventForState(Status.NO_CHANGE, new Date(), 10.0, null));
     }
     
     @Test
@@ -385,7 +385,7 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(10.0));
         
         // Do it once with a null instance
-        Event event = evaluator.getTriggerSustainedEventForState(Status.TRIGGERED, new Date(), 10.0, null);
+        Event event = evaluator.getSustainedEventForState(Status.TRIGGERED, new Date(), 10.0, null);
         assertNotNull("should have created an event", event);
         assertEquals("UEIs should be the same", "uei.opennms.sustained/triggerSustained", event.getUei());
         assertNotNull("event should have parms", event.getParmCollection());
@@ -395,7 +395,7 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         parmPresentWithValue(event, "multiplier", "1.1");
         
         // And again with a non-null instance
-        event = evaluator.getTriggerSustainedEventForState(Status.TRIGGERED, new Date(), 10.0, new MockCollectionResourceWrapper("testInstance"));
+        event = evaluator.getSustainedEventForState(Status.TRIGGERED, new Date(), 10.0, new MockCollectionResourceWrapper("testInstance"));
         assertNotNull("should have created an event", event);
         assertEquals("UEIs should be the same", "uei.opennms.sustained/triggerSustained", event.getUei());
         assertNotNull("event should have parms", event.getParmCollection());

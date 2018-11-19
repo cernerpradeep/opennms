@@ -264,7 +264,7 @@ public class ThresholdEvaluatorHighLow implements ThresholdEvaluator {
         }
         
         @Override
-        public Event getTriggerSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource) {
+        public Event getSustainedEventForState(Status status, Date date, double dsValue, CollectionResourceWrapper resource) {
         	if (status == Status.TRIGGERED) {
 	        	final String triggerSustainedUEI = getThresholdConfig().getTriggerSustainedUEI().orElse(null);
 	            if (triggerSustainedUEI != null) {
