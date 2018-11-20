@@ -251,13 +251,28 @@ public final class ThresholdEntity implements Cloneable {
         }
         
         LOG.debug("evaluate: value= {} against threshold: {}", dsValue, this);
-
+        
         for (ThresholdEvaluatorState item : getThresholdEvaluatorStates(instance)) {
             Status status = item.evaluate(dsValue);
-            Event event = item.getEventForState(status, date, dsValue, resource);
+            Event event = item.getEventForState(status, date, dsValue,
+                                                resource);
             if (event != null) {
                 events.add(event);
             }
+            
+            //this code flow is to honour send sustain events (Events for every threshold violations)
+            //first check whether the send sustained has been configured
+            if (item.getThresholdConfig().hasSendSustainedEvents()) {
+                //create a event and add it to the list if the sustained status is TRIGGERED
+                Event triggerSustainedEvent = item.getSustainedEventForState(item.evaluateSustained(),
+                                                                                    date,
+                                                                                    dsValue,
+                                                                                    resource);
+                if (triggerSustainedEvent != null) {
+                    events.add(triggerSustainedEvent);
+                }
+            }
+            
         }
 
         return events;

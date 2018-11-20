@@ -218,6 +218,10 @@ public abstract class BaseThresholdDefConfigWrapper {
     public Basethresholddef getBasethresholddef() {
         return m_baseDef;
     }
+    
+    public boolean hasSendSustainedEvents(){
+	    return m_baseDef.getSendSustainedEvents() != null;
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -237,6 +241,7 @@ public abstract class BaseThresholdDefConfigWrapper {
                     && Objects.equals(this.getValue(), that.getValue())
                     && Objects.equals(this.getRearm(), that.getRearm())
                     && Objects.equals(this.getTrigger(), that.getTrigger())
+                    && Objects.equals(this.getTriggerSustainedUEI(), that.getTriggerSustainedUEI())
                     && Objects.equals(this.getBasethresholddef().getFilterOperator(), that.getBasethresholddef().getFilterOperator())
                     && Objects.equals(this.getBasethresholddef().getRelaxed(), that.getBasethresholddef().getRelaxed())
                     && Objects.equals(this.getBasethresholddef().getResourceFilters(), that.getBasethresholddef().getResourceFilters());
@@ -244,7 +249,11 @@ public abstract class BaseThresholdDefConfigWrapper {
         return false;
     }
     
-    /** {@inheritDoc} */
+    public Optional<String> getTriggerSustainedUEI() {
+		return m_baseDef.getSustainedUEI();
+	}
+
+	/** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(m_baseDef);

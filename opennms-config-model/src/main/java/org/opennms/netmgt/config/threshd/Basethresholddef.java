@@ -124,6 +124,21 @@ public abstract class Basethresholddef implements Serializable {
      */
     @XmlAttribute(name = "ds-label")
     private String m_dsLabel;
+    
+    /**
+     * Boolean to indicate send sustained evetns each time a triggering value
+     * is collected.
+     */
+    @XmlAttribute(name = "send-sustained-events")
+    private Boolean m_sendSustainedEvents;
+
+    /**
+     * The UEI of the event to send for a triggered threshold each time a
+     * threshold value is collected that crosses the threshold until the
+     * threshold is rearmed.
+     */
+    @XmlAttribute(name = "sustainedUEI")
+    private String m_sustainedUEI;
 
     /**
      * The UEI to send when this threshold is triggered. If not
@@ -219,6 +234,36 @@ public abstract class Basethresholddef implements Serializable {
     public void setDsLabel(final String dsLabel) {
         m_dsLabel = ConfigUtils.normalizeString(dsLabel);
     }
+    
+    /**
+     * @return the m_sendSustainedEvents
+     */
+    public Boolean getSendSustainedEvents() {
+        return m_sendSustainedEvents;
+    }
+
+    /**
+     * @param m_sendSustainedEvents
+     *            the m_sendSustainedEvents to set
+     */
+    public void setSendSustainedEvents(Boolean m_sendSustainedEvents) {
+        this.m_sendSustainedEvents = m_sendSustainedEvents;
+    }
+
+    /**
+     * @return the m_sustainedUEI
+     */
+    public Optional<String> getSustainedUEI() {
+        return Optional.ofNullable(m_sustainedUEI);
+    }
+
+    /**
+     * @param m_sustainedUEI
+     *            the m_sustainedUEI to set
+     */
+    public void setSustainedUEI(final String sustainedUEI) {
+        this.m_sustainedUEI = sustainedUEI;
+    }
 
     public Optional<String> getTriggeredUEI() {
         return Optional.ofNullable(m_triggeredUEI);
@@ -278,7 +323,9 @@ public abstract class Basethresholddef implements Serializable {
                             m_value, 
                             m_rearm, 
                             m_trigger, 
-                            m_dsLabel, 
+                            m_dsLabel,
+                            m_sendSustainedEvents,
+                            m_sustainedUEI,
                             m_triggeredUEI, 
                             m_rearmedUEI, 
                             m_filterOperator, 
@@ -307,6 +354,8 @@ public abstract class Basethresholddef implements Serializable {
                     && Objects.equals(this.m_rearm, that.m_rearm)
                     && Objects.equals(this.m_trigger, that.m_trigger)
                     && Objects.equals(this.m_dsLabel, that.m_dsLabel)
+                    && Objects.equals(this.m_sendSustainedEvents, that.m_sendSustainedEvents)
+                    && Objects.equals(this.m_sustainedUEI, that.m_sustainedUEI)
                     && Objects.equals(this.m_triggeredUEI, that.m_triggeredUEI)
                     && Objects.equals(this.m_rearmedUEI, that.m_rearmedUEI)
                     && Objects.equals(this.m_filterOperator, that.m_filterOperator)

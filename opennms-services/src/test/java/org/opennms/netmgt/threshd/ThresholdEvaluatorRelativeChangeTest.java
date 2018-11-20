@@ -119,6 +119,23 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
     }
     
     @Test
+    public void testEvaluateSustainedTwiceTriggerLowBelow() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(0.9);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+        
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(10.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(8.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluateSustained());
+    }
+    
+    @Test
     public void testEvaluateTwiceTriggerLowEqual() {
         Threshold threshold = new Threshold();
         threshold.setType(ThresholdType.RELATIVE_CHANGE);
@@ -132,6 +149,24 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         
         assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(10.0));
         assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(9.0));
+    }
+    
+    
+    @Test
+    public void testEvaluateSustainedTwiceTriggerLowEqual() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(0.9);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+        
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(10.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(9.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluateSustained());
     }
     
     @Test
@@ -164,6 +199,23 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         
         assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(10.0));
         assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(12.0));
+    }
+    
+    @Test
+    public void testEvaluateSustainedTwiceTriggerHighAbove() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(1.1);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+        
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(10.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(12.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluateSustained());
     }
     
     @Test
@@ -232,6 +284,24 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
     }
     
     @Test
+    public void testEvaluateSustainedThriceTriggerHighFirstZero() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(1.1);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+        
+        assertEquals("should not trigger on first evaluate", Status.NO_CHANGE, evaluator.evaluate(0.0));
+        assertEquals("should not trigger on second evaluate", Status.NO_CHANGE, evaluator.evaluate(1000.0));
+        assertEquals("should trigger on third evaluate", Status.TRIGGERED, evaluator.evaluate(1200.0));
+        assertEquals("should trigger on third evaluate", Status.TRIGGERED, evaluator.evaluateSustained());
+    }
+    
+    @Test
     public void testGetEventForStateNoChange() {
         Threshold threshold = new Threshold();
         threshold.setType(ThresholdType.RELATIVE_CHANGE);
@@ -244,6 +314,21 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
 
         assertNull("should not have created an event", evaluator.getEventForState(Status.NO_CHANGE, new Date(), 10.0, null));
+    }
+    
+    @Test
+    public void testGetTriggerSustainedEventForStateNoChange() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(1.1);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+
+        assertNull("should not have created an event", evaluator.getSustainedEventForState(Status.NO_CHANGE, new Date(), 10.0, null));
     }
     
     @Test
@@ -275,6 +360,44 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         event = evaluator.getEventForState(Status.TRIGGERED, new Date(), 10.0, new MockCollectionResourceWrapper("testInstance"));
         assertNotNull("should have created an event", event);
         assertEquals("UEIs should be the same", EventConstants.RELATIVE_CHANGE_THRESHOLD_EVENT_UEI, event.getUei());
+        assertNotNull("event should have parms", event.getParmCollection());
+        parmPresentWithValue(event, "instance", "testInstance");
+        parmPresentWithValue(event, "value", "10.0");
+        parmPresentWithValue(event, "previousValue", "8.0");
+        parmPresentWithValue(event, "multiplier", "1.1");
+    }
+    
+    
+    @Test
+    public void testGetTriggerSustainedEventForStateTriggered() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(1.1);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        threshold.setSustainedUEI("uei.opennms.sustained/triggerSustained");
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(8.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(10.0));
+        
+        // Do it once with a null instance
+        Event event = evaluator.getSustainedEventForState(Status.TRIGGERED, new Date(), 10.0, null);
+        assertNotNull("should have created an event", event);
+        assertEquals("UEIs should be the same", "uei.opennms.sustained/triggerSustained", event.getUei());
+        assertNotNull("event should have parms", event.getParmCollection());
+        parmPresentAndValueNonNull(event, "instance");
+        parmPresentWithValue(event, "value", "10.0");
+        parmPresentWithValue(event, "previousValue", "8.0");
+        parmPresentWithValue(event, "multiplier", "1.1");
+        
+        // And again with a non-null instance
+        event = evaluator.getSustainedEventForState(Status.TRIGGERED, new Date(), 10.0, new MockCollectionResourceWrapper("testInstance"));
+        assertNotNull("should have created an event", event);
+        assertEquals("UEIs should be the same", "uei.opennms.sustained/triggerSustained", event.getUei());
         assertNotNull("event should have parms", event.getParmCollection());
         parmPresentWithValue(event, "instance", "testInstance");
         parmPresentWithValue(event, "value", "10.0");
@@ -335,6 +458,23 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
     }
     
     @Test
+    public void testNegativeNumberSustainedTriggers() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(1.1);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+        
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(-10.0));
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluate(-12.0));   
+        assertEquals("should trigger", Status.TRIGGERED, evaluator.evaluateSustained());
+    }
+    
+    @Test
     public void testNegativeNumberNotTriggers() {
         Threshold threshold = new Threshold();
         threshold.setType(ThresholdType.RELATIVE_CHANGE);
@@ -348,6 +488,23 @@ public class ThresholdEvaluatorRelativeChangeTest extends AbstractThresholdEvalu
         
         assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(-10.0));
         assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(-10.5));   	
+    }
+    
+    @Test
+    public void testNegativeNumberNotSustainedTriggers() {
+        Threshold threshold = new Threshold();
+        threshold.setType(ThresholdType.RELATIVE_CHANGE);
+        threshold.setDsName("ds-name");
+        threshold.setDsType("node");
+        threshold.setValue(1.1);
+        threshold.setRearm(0.5);
+        threshold.setTrigger(3);
+        ThresholdConfigWrapper wrapper=new ThresholdConfigWrapper(threshold);
+        ThresholdEvaluatorStateRelativeChange evaluator = new ThresholdEvaluatorStateRelativeChange(wrapper);
+        
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(-10.0));
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluate(-10.5));  
+        assertEquals("should not trigger", Status.NO_CHANGE, evaluator.evaluateSustained());
     }
     	 
     @Test
